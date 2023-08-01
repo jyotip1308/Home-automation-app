@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Home Application</string>
+    <string name="heading_text">My Home</string>
+    <string name="total_device">All Devices</string>
+    <string name="Num_device">9 Devices</string>
+    <string name="categories">Device categories</string>
+
+    <string name="Bulb">Led Bulb</string>
+    <string name="FanAc">Fan and Ac</string>
+
+</resources>
