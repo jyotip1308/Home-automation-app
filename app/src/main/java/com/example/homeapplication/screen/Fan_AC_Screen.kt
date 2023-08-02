@@ -1,11 +1,15 @@
 package com.example.homeapplication.screen
 
+import android.app.Activity
+import android.content.Context
+import android.content.pm.ActivityInfo
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -33,27 +37,59 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.homeapplication.R
+import com.example.homeapplication.mqtt.MqttClientHelper
 import com.example.homeapplication.screen.data.Category
 import com.example.homeapplication.screen.data.categoryList7
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
+import org.eclipse.paho.client.mqttv3.MqttMessage
 
 
 @Composable
-fun FanAcScreen(navController: NavHostController ){
+fun FanAcScreen(context : Context){
+
+    val mqttClient by lazy { MqttClientHelper(context) }
+    mqttClient.setCallback(object : MqttCallbackExtended {
+        override fun connectComplete(reconnect: Boolean, serverURI: String) {
+            Log.w(MqttClientHelper.TAG, "MQTT reconnect...$reconnect")
+
+        }
+
+        override fun connectionLost(cause: Throwable) {
+            Log.e(MqttClientHelper.TAG, "MQTT lost..." + cause.message)
+            val st = "MQTT lost! " + cause.message
+        }
+
+        override fun messageArrived(topic: String, message: MqttMessage) {
+            val mess = message.toString()
+            val log = String.format("MQTT RX [%s]: %s", topic, mess)
+            Log.w(MqttClientHelper.TAG, log)
+
+        }
+
+        override fun deliveryComplete(token: IMqttDeliveryToken) {
+            Log.w(MqttClientHelper.TAG, "Publish success...")
+        }
+    })
+
+    // Lock the screen orientation to portrait mode
+    val activity = LocalContext.current as Activity
+    activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+
     LazyColumn(modifier = Modifier
         .fillMaxWidth()
-        .padding(20.dp)
-        .background(Color.White)){
+        .fillMaxSize()
+        //.padding(20.dp)
+        .background(Color(0,0,51))){
         item {
             FanAcText()
             Spacer(modifier = Modifier.height(80.dp))
             FanAcColumn()
             Spacer(modifier = Modifier.height(30.dp))
             AcStatus()
-            Spacer(modifier = Modifier.height(145.dp))
-            BottomNav3(navController = navController)
+
 
         }
     }
@@ -66,7 +102,7 @@ fun FanAcText(){
         modifier = Modifier
             .fillMaxWidth()
             .size(width = 400.dp, height = 80.dp)
-            .background(Color(0xFFD0BCFF), RoundedCornerShape(3.dp)))
+            .background(Color(153,204,255), RoundedCornerShape(3.dp)))
     {
 
         Text(text = stringResource(id = R.string.FanAc),
@@ -76,7 +112,7 @@ fun FanAcText(){
                 fontFamily = FontFamily.Serif),
             modifier = Modifier
                 .padding(start = 5.dp)
-                .align(Alignment.CenterStart)
+                .align(CenterStart)
 
         )
 
@@ -103,10 +139,10 @@ fun FanStatus(
 ){
     var isBulbOn by remember { mutableStateOf(false) }
     Box(modifier = Modifier
-        .padding(start = 80.dp, end = 15.dp)
+        .padding(start = 100.dp, end = 15.dp)
         .clickable { isBulbOn = !isBulbOn }
         .background(
-            if (isBulbOn) Color(51,255,255) else category.color,
+            if (isBulbOn) Color(153,255,255) else category.color,
             RoundedCornerShape(8.dp))
         .width(188.dp)
         .height(150.dp),
@@ -119,7 +155,7 @@ fun FanStatus(
         ),
             modifier = Modifier
                 .padding(start = 5.dp)
-                .align(Alignment.CenterStart)
+                .align(CenterStart)
         )
         Text(text = category.subTitle, style = TextStyle(
             fontSize = 12.sp,
@@ -148,10 +184,10 @@ fun AcStatus(
 ){
     var isBulbOn by remember { mutableStateOf(false) }
     Box(modifier = Modifier
-        .padding(start = 80.dp, end = 15.dp)
+        .padding(start = 100.dp, end = 15.dp)
         .clickable { isBulbOn = !isBulbOn }
         .background(
-            if (isBulbOn) Color(51,255,255) else Color(0XFFD7D5D3), RoundedCornerShape(8.dp))
+            if (isBulbOn) Color(153,255,255) else Color(0XFFD7D5D3), RoundedCornerShape(8.dp))
         .width(188.dp)
         .height(150.dp),
         contentAlignment = CenterStart
@@ -163,7 +199,7 @@ fun AcStatus(
         ),
             modifier = Modifier
                 .padding(start = 5.dp)
-                .align(Alignment.CenterStart)
+                .align(CenterStart)
         )
         Text(text = "Status", style = TextStyle(
             fontSize = 12.sp,
@@ -186,47 +222,6 @@ fun AcStatus(
 
 
 
-@Composable
-fun BottomNav3(navController: NavController){
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .size(width = 400.dp, height = 60.dp)
-        .background(Color.DarkGray, RoundedCornerShape(1.dp))){
-        Row() {
-            // HomeScreen navigation
-            IconButton(
-                onClick = { navController?.navigate("HomeScreen") },
-
-                )
-            {
-                Image(
-                    painter = painterResource(id = R.drawable.img6),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .size(70.dp)
-                       // .padding(9.dp),
-
-                    )
-            }
-            Spacer(modifier = Modifier.width(260.dp))
-
-            IconButton(
-                onClick = { navController?.navigate("LedBulbScreen") },
-
-                ) {
-                Image(
-                    painter = painterResource(id = R.drawable.img7),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .size(75.dp)
-                       // .padding(9.dp),
-                )
-            }
-
-        }
-
-    }
-}
 
 
 //@Preview(showBackground = true)

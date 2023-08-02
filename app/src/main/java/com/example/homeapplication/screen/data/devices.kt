@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.Color
 import com.example.homeapplication.R
 import com.example.homeapplication.ui.theme.DeviceOne
 import com.example.homeapplication.ui.theme.DeviceTwo
-import com.example.homeapplication.ui.theme.PurpleGrey80
 
 data class Category(
     val id: Int,
@@ -38,13 +37,6 @@ val categoryList2 = listOf(
         "",
         R.drawable.img4,
         DeviceOne
-    ),
-    Category(
-        4,
-        "Add More",
-        "",
-        R.drawable.img5,
-        DeviceTwo
     )
 )
 
@@ -115,4 +107,6 @@ val categoryList7 = listOf(
     )
 
 )
+
+
 

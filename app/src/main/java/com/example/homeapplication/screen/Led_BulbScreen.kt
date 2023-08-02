@@ -4,14 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.util.Log
-import androidx.activity.addCallback
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,10 +19,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,8 +37,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.homeapplication.R
 import com.example.homeapplication.mqtt.MqttClientHelper
 import com.example.homeapplication.screen.data.Category
@@ -54,7 +50,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage
 
 
 @Composable
-fun LedBulbScreen(navController: NavHostController,context :Context){
+fun LedBulbScreen(context :Context){
+
 
     val mqttClient by lazy { MqttClientHelper(context) }
     mqttClient.setCallback(object : MqttCallbackExtended {
@@ -65,7 +62,7 @@ fun LedBulbScreen(navController: NavHostController,context :Context){
 
         override fun connectionLost(cause: Throwable) {
             Log.e(MqttClientHelper.TAG, "MQTT lost..." + cause.message)
-            val st = "MQTT lost! " + cause.message
+            //val st = "MQTT lost! " + cause.message
         }
 
         override fun messageArrived(topic: String, message: MqttMessage) {
@@ -84,23 +81,17 @@ fun LedBulbScreen(navController: NavHostController,context :Context){
     val activity = LocalContext.current as Activity
     activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-    // Handle back press (optional)
-    val onBackPressed = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
-    onBackPressed?.addCallback {
-        // Handle back press event here
-    }
 
     LazyColumn(modifier = Modifier
         .fillMaxWidth()
-        .padding(20.dp)
-        .background(Color.White))
+        .fillMaxSize()
+        //.padding(20.dp)
+        .background(Color(0,0,51)))
     {
         item {
             LedText()
             Spacer(modifier = Modifier.height(35.dp))
-            BulbRow()
-            Spacer(modifier = Modifier.height(40.dp))
-            BottomNav2(navController = navController)
+            BulbRow(mqttClient)
         }
     }
 }
@@ -111,7 +102,7 @@ fun LedText(){
        modifier = Modifier
            .fillMaxWidth()
            .size(width = 400.dp, height = 80.dp)
-           .background(Color(0xFFD0BCFF), RoundedCornerShape(3.dp))) {
+           .background(Color(153,204,255), RoundedCornerShape(3.dp))) {
 
         Text(text = stringResource(id = R.string.Bulb),
         style = TextStyle(
@@ -129,29 +120,77 @@ fun LedText(){
 }
 
 @Composable
-fun BulbRow(){
+fun BulbRow(mqttClient: MqttClientHelper){
 
-        LazyRow{
-            items(categoryList3, key = { it.id }) {
-                BulbRow1(category = it)
+    // Initialize a list to store the state of each bulb
+    val bulbStates = remember { mutableStateListOf<Boolean>() }
+
+    // Populate the list with initial states
+    if (bulbStates.isEmpty()) {
+        categoryList3.forEach { _ ->
+            bulbStates.add(false)
+        }
+    }
+
+    if (bulbStates.isEmpty()) {
+        categoryList4.forEach { _ ->
+            bulbStates.add(false)
+        }
+    }
+
+    if (bulbStates.isEmpty()) {
+        categoryList5.forEach { _ ->
+            bulbStates.add(false)
+        }
+    }
+
+    if (bulbStates.isEmpty()) {
+        categoryList6.forEach { _ ->
+            bulbStates.add(false)
+        }
+    }
+
+    LazyRow {
+        items(categoryList3.zip(bulbStates)) { (category, isBulbOn) ->
+            BulbRow1(category = category, isBulbOn = isBulbOn) {
+                // Toggle the state of the clicked bulb
+                bulbStates[categoryList3.indexOf(category)] = !isBulbOn
+                val message = if (!isBulbOn) "on" else "off"
+                mqttClient.publish("bulb/status", message)
+            }
+        }
+    }
+        Spacer(Modifier.height(20.dp))
+        LazyRow {
+            items(categoryList4.zip(bulbStates)) { (category, isBulbOn) ->
+                BulbRow2(category = category, isBulbOn = isBulbOn) {
+                    // Toggle the state of the clicked bulb
+                    bulbStates[categoryList4.indexOf(category)] = !isBulbOn
+                    val message = if (!isBulbOn) "on" else "off"
+                    mqttClient.publish("bulb/status", message)
+                }
             }
         }
         Spacer(Modifier.height(20.dp))
         LazyRow {
-            items(categoryList4, key = { it.id }) {
-                BulbRow2(category = it)
+            items(categoryList5.zip(bulbStates)) { (category, isBulbOn) ->
+                BulbRow3(category = category, isBulbOn = isBulbOn) {
+                    // Toggle the state of the clicked bulb
+                    bulbStates[categoryList5.indexOf(category)] = !isBulbOn
+                    val message = if (!isBulbOn) "on" else "off"
+                    mqttClient.publish("bulb/status", message)
+                }
             }
         }
         Spacer(Modifier.height(20.dp))
         LazyRow {
-            items(categoryList5, key = { it.id }) {
-                BulbRow3(category = it)
-            }
-        }
-        Spacer(Modifier.height(20.dp))
-        LazyRow {
-            items(categoryList6, key = { it.id }) {
-                BulbRow4(category = it)
+            items(categoryList6.zip(bulbStates)) { (category, isBulbOn) ->
+                BulbRow4(category = category, isBulbOn = isBulbOn) {
+                    // Toggle the state of the clicked bulb
+                    bulbStates[categoryList6.indexOf(category)] = !isBulbOn
+                    val message = if (!isBulbOn) "on" else "off"
+                    mqttClient.publish("bulb/status", message)
+                }
             }
         }
 
@@ -159,15 +198,17 @@ fun BulbRow(){
 
 @Composable
 fun BulbRow1(
-    category: Category
+    category: Category,
+    isBulbOn: Boolean,
+    onClick: () -> Unit
 ){
-    var isBulbOn by remember { mutableStateOf(false) }
+   // var isBulbOn by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier
-        .padding(end = 15.dp)
-        .clickable { isBulbOn = !isBulbOn }
+        .padding(end = 15.dp, start = 15.dp)
+        .clickable { onClick() } // Call the provided onClick callback
         .background(
-            if (isBulbOn) Color.Yellow else category.color,
+            if (isBulbOn) Color(255, 255, 153) else category.color,
             RoundedCornerShape(8.dp)
         )
         .width(168.dp)
@@ -202,17 +243,18 @@ fun BulbRow1(
 
 @Composable
 fun BulbRow2(
-    category: Category
+    category: Category,
+    isBulbOn: Boolean,
+    onClick: () -> Unit
 ){
-    var isBulbOn by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier
-        .padding(end = 15.dp)
-        .clickable { isBulbOn = !isBulbOn }
+        .padding(end = 15.dp, start = 15.dp)
+        .clickable { onClick() } // Call the provided onClick callback
         .background(
-            if (isBulbOn) Color.Yellow else category.color,
-            RoundedCornerShape(8.dp))
-        .width(168.dp)
+            if (isBulbOn) Color(255, 255, 153) else category.color,
+            RoundedCornerShape(8.dp)
+        ).width(168.dp)
         .height(110.dp)
     ){
         Text(text = category.title, style = TextStyle(
@@ -244,16 +286,18 @@ fun BulbRow2(
 
 @Composable
 fun BulbRow3(
-    category: Category
+    category: Category,
+    isBulbOn: Boolean,
+    onClick: () -> Unit
 ){
-    var isBulbOn by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier
-        .padding(end = 15.dp)
-        .clickable { isBulbOn = !isBulbOn }
+        .padding(end = 15.dp, start = 15.dp)
+        .clickable { onClick() } // Call the provided onClick callback
         .background(
-            if (isBulbOn) Color.Yellow else category.color,
-            RoundedCornerShape(8.dp))
+            if (isBulbOn) Color(255, 255, 153) else category.color,
+            RoundedCornerShape(8.dp)
+        )
         .width(168.dp)
         .height(110.dp)
     ){
@@ -286,16 +330,18 @@ fun BulbRow3(
 
 @Composable
 fun BulbRow4(
-    category: Category
+    category: Category,
+    isBulbOn: Boolean,
+    onClick: () -> Unit
 ){
-    var isBulbOn by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier
-        .padding(end = 15.dp)
-        .clickable { isBulbOn = !isBulbOn }
+        .padding(end = 15.dp, start = 15.dp)
+        .clickable { onClick() } // Call the provided onClick callback
         .background(
-            if (isBulbOn) Color.Yellow else category.color,
-            RoundedCornerShape(8.dp))
-        .width(168.dp)
+            if (isBulbOn) Color(255, 255, 153) else category.color,
+            RoundedCornerShape(8.dp)
+        ) .width(168.dp)
         .height(110.dp)
     ){
         Text(text = category.title, style = TextStyle(
@@ -325,59 +371,6 @@ fun BulbRow4(
     }
 }
 
-@Composable
-fun BottomNav2(navController: NavController){
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .size(width = 400.dp, height = 60.dp)
-        .background(Color.DarkGray, RoundedCornerShape(1.dp))){
-        Row() {
-
-                // HomeScreen navigation
-            IconButton(
-                    onClick = { navController?.navigate("HomeScreen") },
-
-                    )
-            {
-                Image(
-                    painter = painterResource(id = R.drawable.img6),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .size(70.dp)
-                      //  .padding(9.dp),
-
-                    )
-            }
-
-            Spacer(modifier = Modifier.width(260.dp))
-
-            // Fan & AC Screen navigation
-            IconButton(
-                onClick = { navController?.navigate("FanAcScreen") },
-
-                )
-            {
-                Image(
-                    painter = painterResource(id = R.drawable.img8),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .size(75.dp)
-                        //.padding(9.dp),
-                )
-            }
-
-        }
-
-    }
-}
 
 
 
-//@Preview(showBackground = true)
-//@Composable
-//fun DefaultPreview(){
-//    Surface(Modifier.fillMaxSize()) {
-//        LedBulbScreen()
-//    }
-//
-//}
