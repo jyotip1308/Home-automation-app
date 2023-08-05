@@ -21,11 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -86,12 +83,18 @@ fun LedBulbScreen(context :Context){
         .fillMaxWidth()
         .fillMaxSize()
         //.padding(20.dp)
-        .background(Color(0,0,51)))
+        .background(Color(0, 0, 51)))
     {
         item {
             LedText()
             Spacer(modifier = Modifier.height(35.dp))
             BulbRow(mqttClient)
+            Spacer(modifier = Modifier.height(25.dp))
+            BulbRow22(mqttClient )
+            Spacer(modifier = Modifier.height(25.dp))
+            BulbRow33(mqttClient)
+            Spacer(modifier = Modifier.height(25.dp))
+            BulbRow44(mqttClient)
         }
     }
 }
@@ -102,7 +105,7 @@ fun LedText(){
        modifier = Modifier
            .fillMaxWidth()
            .size(width = 400.dp, height = 80.dp)
-           .background(Color(153,204,255), RoundedCornerShape(3.dp))) {
+           .background(Color(153, 204, 255), RoundedCornerShape(3.dp))) {
 
         Text(text = stringResource(id = R.string.Bulb),
         style = TextStyle(
@@ -132,24 +135,6 @@ fun BulbRow(mqttClient: MqttClientHelper){
         }
     }
 
-    if (bulbStates.isEmpty()) {
-        categoryList4.forEach { _ ->
-            bulbStates.add(false)
-        }
-    }
-
-    if (bulbStates.isEmpty()) {
-        categoryList5.forEach { _ ->
-            bulbStates.add(false)
-        }
-    }
-
-    if (bulbStates.isEmpty()) {
-        categoryList6.forEach { _ ->
-            bulbStates.add(false)
-        }
-    }
-
     LazyRow {
         items(categoryList3.zip(bulbStates)) { (category, isBulbOn) ->
             BulbRow1(category = category, isBulbOn = isBulbOn) {
@@ -160,41 +145,86 @@ fun BulbRow(mqttClient: MqttClientHelper){
             }
         }
     }
-        Spacer(Modifier.height(20.dp))
-        LazyRow {
-            items(categoryList4.zip(bulbStates)) { (category, isBulbOn) ->
-                BulbRow2(category = category, isBulbOn = isBulbOn) {
-                    // Toggle the state of the clicked bulb
-                    bulbStates[categoryList4.indexOf(category)] = !isBulbOn
-                    val message = if (!isBulbOn) "on" else "off"
-                    mqttClient.publish("bulb/status", message)
-                }
-            }
-        }
-        Spacer(Modifier.height(20.dp))
-        LazyRow {
-            items(categoryList5.zip(bulbStates)) { (category, isBulbOn) ->
-                BulbRow3(category = category, isBulbOn = isBulbOn) {
-                    // Toggle the state of the clicked bulb
-                    bulbStates[categoryList5.indexOf(category)] = !isBulbOn
-                    val message = if (!isBulbOn) "on" else "off"
-                    mqttClient.publish("bulb/status", message)
-                }
-            }
-        }
-        Spacer(Modifier.height(20.dp))
-        LazyRow {
-            items(categoryList6.zip(bulbStates)) { (category, isBulbOn) ->
-                BulbRow4(category = category, isBulbOn = isBulbOn) {
-                    // Toggle the state of the clicked bulb
-                    bulbStates[categoryList6.indexOf(category)] = !isBulbOn
-                    val message = if (!isBulbOn) "on" else "off"
-                    mqttClient.publish("bulb/status", message)
-                }
-            }
-        }
 
 }
+
+@Composable
+fun BulbRow22(mqttClient: MqttClientHelper){
+
+    // Initialize a list to store the state of each bulb
+    val bulbStates = remember { mutableStateListOf<Boolean>() }
+
+    // Populate the list with initial states
+    if (bulbStates.isEmpty()) {
+        categoryList4.forEach { _ ->
+            bulbStates.add(false)
+        }
+    }
+
+    LazyRow {
+        items(categoryList4.zip(bulbStates)) { (category, isBulbOn) ->
+            BulbRow2(category = category, isBulbOn = isBulbOn) {
+                // Toggle the state of the clicked bulb
+                bulbStates[categoryList4.indexOf(category)] = !isBulbOn
+                val message = if (!isBulbOn) "on" else "off"
+                mqttClient.publish("bulb/status", message)
+            }
+        }
+    }
+
+}
+
+@Composable
+fun BulbRow33(mqttClient: MqttClientHelper){
+
+    // Initialize a list to store the state of each bulb
+    val bulbStates = remember { mutableStateListOf<Boolean>() }
+
+    // Populate the list with initial states
+    if (bulbStates.isEmpty()) {
+        categoryList5.forEach { _ ->
+            bulbStates.add(false)
+        }
+    }
+
+    LazyRow {
+        items(categoryList5.zip(bulbStates)) { (category, isBulbOn) ->
+            BulbRow3(category = category, isBulbOn = isBulbOn) {
+                // Toggle the state of the clicked bulb
+                bulbStates[categoryList5.indexOf(category)] = !isBulbOn
+                val message = if (!isBulbOn) "on" else "off"
+                mqttClient.publish("bulb/status", message)
+            }
+        }
+    }
+}
+
+@Composable
+fun BulbRow44(mqttClient: MqttClientHelper){
+
+    // Initialize a list to store the state of each bulb
+    val bulbStates = remember { mutableStateListOf<Boolean>() }
+
+    // Populate the list with initial states
+    if (bulbStates.isEmpty()) {
+        categoryList6.forEach { _ ->
+            bulbStates.add(false)
+        }
+    }
+
+    LazyRow {
+        items(categoryList6.zip(bulbStates)) { (category, isBulbOn) ->
+            BulbRow4(category = category, isBulbOn = isBulbOn) {
+                // Toggle the state of the clicked bulb
+                bulbStates[categoryList6.indexOf(category)] = !isBulbOn
+                val message = if (!isBulbOn) "on" else "off"
+                mqttClient.publish("bulb/status", message)
+            }
+        }
+    }
+
+}
+
 
 @Composable
 fun BulbRow1(
@@ -254,7 +284,8 @@ fun BulbRow2(
         .background(
             if (isBulbOn) Color(255, 255, 153) else category.color,
             RoundedCornerShape(8.dp)
-        ).width(168.dp)
+        )
+        .width(168.dp)
         .height(110.dp)
     ){
         Text(text = category.title, style = TextStyle(
@@ -341,7 +372,8 @@ fun BulbRow4(
         .background(
             if (isBulbOn) Color(255, 255, 153) else category.color,
             RoundedCornerShape(8.dp)
-        ) .width(168.dp)
+        )
+        .width(168.dp)
         .height(110.dp)
     ){
         Text(text = category.title, style = TextStyle(

@@ -21,10 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Modifier
@@ -40,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.example.homeapplication.R
 import com.example.homeapplication.mqtt.MqttClientHelper
 import com.example.homeapplication.screen.data.Category
+import com.example.homeapplication.screen.data.categoryList6
 import com.example.homeapplication.screen.data.categoryList7
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended
@@ -58,7 +57,7 @@ fun FanAcScreen(context : Context){
 
         override fun connectionLost(cause: Throwable) {
             Log.e(MqttClientHelper.TAG, "MQTT lost..." + cause.message)
-            val st = "MQTT lost! " + cause.message
+
         }
 
         override fun messageArrived(topic: String, message: MqttMessage) {
@@ -86,9 +85,9 @@ fun FanAcScreen(context : Context){
         item {
             FanAcText()
             Spacer(modifier = Modifier.height(80.dp))
-            FanAcColumn()
+            FanStatus1(mqttClient)
             Spacer(modifier = Modifier.height(30.dp))
-            AcStatus()
+            AcStatus1(mqttClient)
 
 
         }
@@ -122,28 +121,47 @@ fun FanAcText(){
 
 
 @Composable
-fun FanAcColumn() {
-    //Column for Fan And Ac
+fun FanStatus1(mqttClient: MqttClientHelper){
+
+    // Initialize a list to store the state of each bulb
+    val bulbStates = remember { mutableStateListOf<Boolean>() }
+
+    // Populate the list with initial states
+    if (bulbStates.isEmpty()) {
+        categoryList6.forEach { _ ->
+            bulbStates.add(false)
+        }
+    }
+
     LazyRow {
-        items(categoryList7, key = { it.id }) {
-            FanStatus(category = it)
+        items(categoryList6.zip(bulbStates)) { (category, isBulbOn) ->
+            FanStatus(category = category, isBulbOn = isBulbOn) {
+                // Toggle the state of the clicked bulb
+                bulbStates[categoryList6.indexOf(category)] = !isBulbOn
+                val message = if (!isBulbOn) "on" else "off"
+                mqttClient.publish("Fan/status", message)
+            }
         }
     }
 
 }
 
+
 //Status Box of Fan
 @Composable
 fun FanStatus(
-    category: Category
+    category: Category,
+    isBulbOn: Boolean,
+    onClick: () -> Unit
 ){
-    var isBulbOn by remember { mutableStateOf(false) }
+    //var isBulbOn by remember { mutableStateOf(false) }
     Box(modifier = Modifier
         .padding(start = 100.dp, end = 15.dp)
-        .clickable { isBulbOn = !isBulbOn }
+        .clickable { onClick() } // Call the provided onClick callback
         .background(
             if (isBulbOn) Color(153,255,255) else category.color,
-            RoundedCornerShape(8.dp))
+            RoundedCornerShape(8.dp)
+        )
         .width(188.dp)
         .height(150.dp),
         contentAlignment = CenterStart
@@ -176,18 +194,50 @@ fun FanStatus(
 
 }
 
+@Composable
+fun AcStatus1(mqttClient: MqttClientHelper){
+
+    // Initialize a list to store the state of each bulb
+    val bulbStates = remember { mutableStateListOf<Boolean>() }
+
+    // Populate the list with initial states
+    if (bulbStates.isEmpty()) {
+        categoryList7.forEach { _ ->
+            bulbStates.add(false)
+        }
+    }
+
+    LazyRow {
+        items(categoryList7.zip(bulbStates)) { (category, isBulbOn) ->
+            AcStatus(category = category, isBulbOn = isBulbOn) {
+                // Toggle the state of the clicked bulb
+                bulbStates[categoryList7.indexOf(category)] = !isBulbOn
+                val message = if (!isBulbOn) "on" else "off"
+                mqttClient.publish("AirConditioner/status", message)
+            }
+        }
+    }
+
+}
+
+
 
 //Status Box of AC
 @Composable
 fun AcStatus(
+    category: Category,
+    isBulbOn: Boolean,
+    onClick: () -> Unit
 
 ){
-    var isBulbOn by remember { mutableStateOf(false) }
+    //var isBulbOn by remember { mutableStateOf(false) }
     Box(modifier = Modifier
         .padding(start = 100.dp, end = 15.dp)
-        .clickable { isBulbOn = !isBulbOn }
+        .clickable { onClick() } // Call the provided onClick callback
         .background(
-            if (isBulbOn) Color(153,255,255) else Color(0XFFD7D5D3), RoundedCornerShape(8.dp))
+            if (isBulbOn) Color(153,255,255) else category.color,
+            RoundedCornerShape(8.dp)
+        )
         .width(188.dp)
         .height(150.dp),
         contentAlignment = CenterStart
@@ -224,12 +274,5 @@ fun AcStatus(
 
 
 
-//@Preview(showBackground = true)
-//@Composable
-//fun DefaultPreview2() {
-//    Surface(Modifier.fillMaxSize()) {
-//        FanAcScreen()
-//    }
-//}
 
 

@@ -39,7 +39,6 @@ import com.example.homeapplication.R
 import com.example.homeapplication.screen.data.Category
 import com.example.homeapplication.screen.data.categoryList
 import com.example.homeapplication.screen.data.categoryList2
-import com.example.homeapplication.ui.theme.PurpleGrey40
 
 
 @Composable
