@@ -39,10 +39,11 @@ import com.example.homeapplication.R
 import com.example.homeapplication.screen.data.Category
 import com.example.homeapplication.screen.data.categoryList
 import com.example.homeapplication.screen.data.categoryList2
+import com.example.homeapplication.viewModel.HomeAppViewModel
 
 
 @Composable
-fun HomeScreen(){
+fun HomeScreen(viewModel: HomeAppViewModel){
 
     // Lock the screen orientation to portrait mode
     val activity = LocalContext.current as Activity
@@ -63,13 +64,10 @@ fun HomeScreen(){
             Heading()
             Spacer(modifier = Modifier.height(60.dp))
             DeviceRow()
-
         }
     }
 }
-
-
-@Composable
+@Composable 
 fun Heading(){
     Row (
         modifier = Modifier
@@ -96,7 +94,7 @@ fun Heading(){
             Column{
                 Text(
                     text = stringResource(id = R.string.total_device),
-                    style = TextStyle(
+                   style = TextStyle(
                         fontSize = 25.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = FontFamily.SansSerif,
@@ -196,7 +194,7 @@ fun DeviceEachRow2(
 @Composable
 fun CommonTitle(
     title: String,
-    onClick: () -> Unit = {}
+    //onClick: () -> Unit = {}
 ) {
 
     Row(
@@ -214,8 +212,6 @@ fun CommonTitle(
         )
     }
 }
-
-
 
 @Composable
 fun Header(){

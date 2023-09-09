@@ -88,6 +88,7 @@ val categoryList5 = listOf(
         DeviceOne
     )
 )
+
 val categoryList6 = listOf(
     Category(
         11,
@@ -99,14 +100,19 @@ val categoryList6 = listOf(
 )
 val categoryList7 = listOf(
     Category(
-        12,
+        1,
+        "Ac",
+        "Status",
+        R.drawable.img4,
+        DeviceTwo
+    ),
+    Category(
+        2,
         "Fan",
         "Status",
         R.drawable.img3,
         DeviceTwo
     )
-
 )
-
 
 

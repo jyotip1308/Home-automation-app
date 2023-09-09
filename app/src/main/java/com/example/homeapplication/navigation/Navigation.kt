@@ -14,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,19 +25,31 @@ import androidx.navigation.compose.rememberNavController
 import com.example.homeapplication.screen.FanAcScreen
 import com.example.homeapplication.screen.HomeScreen
 import com.example.homeapplication.screen.LedBulbScreen
+import com.example.homeapplication.viewModel.HomeAppViewModel
 
 
 @Composable
 fun NavigationController (navController: NavHostController, context: Context){
+
+    val viewModel = viewModel<HomeAppViewModel>(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return HomeAppViewModel(
+                    context = context
+                ) as T
+            }
+        }
+    )
+
     NavHost(navController = navController, startDestination = NavigationItem.HomeScreen.route){
         composable (NavigationItem.HomeScreen.route) {
-            HomeScreen()
+            HomeScreen(viewModel)
         }
         composable (NavigationItem.LedBulbScreen.route){
-            LedBulbScreen(context)
+            LedBulbScreen(context, viewModel)
         }
         composable(NavigationItem.FanAcScreen.route){
-            FanAcScreen(context)
+            FanAcScreen(context, viewModel)
         }
 
     }
