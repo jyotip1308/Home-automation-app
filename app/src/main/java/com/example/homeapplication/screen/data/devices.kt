@@ -15,14 +15,14 @@ data class Category(
 )
  val categoryList = listOf(
     Category(
-        1,
+        5,
         "Led Bulb",
         "",
         R.drawable.img2,
         DeviceOne
     ),
     Category(
-        2,
+        6,
         "Fan",
         "",
         R.drawable.img3,
@@ -32,7 +32,7 @@ data class Category(
 
 val categoryList2 = listOf(
     Category(
-        3,
+        7,
         "AC",
         "",
         R.drawable.img4,
@@ -42,14 +42,14 @@ val categoryList2 = listOf(
 
 val categoryList3 = listOf(
     Category(
-        5,
+        1,
         "1st Bulb",
         "Status",
         R.drawable.img2,
         DeviceOne
     ),
     Category(
-        6,
+        2,
         "2nd Bulb",
         "Status",
         R.drawable.img2,
@@ -58,7 +58,7 @@ val categoryList3 = listOf(
 )
 val categoryList4 = listOf(
     Category(
-        7,
+        4,
         "3rd Bulb",
         "Status",
         R.drawable.img2,
@@ -74,14 +74,14 @@ val categoryList4 = listOf(
 )
 val categoryList5 = listOf(
     Category(
-        9,
+        16,
         "5th Bulb",
         "Status",
         R.drawable.img2,
         DeviceTwo
     ),
     Category(
-        10,
+        32,
         "6th Bulb",
         "Status",
         R.drawable.img2,
@@ -91,7 +91,7 @@ val categoryList5 = listOf(
 
 val categoryList6 = listOf(
     Category(
-        11,
+        64,
         "7th Bulb",
         "Status",
         R.drawable.img2,

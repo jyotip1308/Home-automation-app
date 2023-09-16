@@ -12,6 +12,7 @@ class MqttClientHelper(context: Context?) {
     }
 
     var mqttAndroidClient: MqttAndroidClient
+
     // val serverUri = SOLACE_MQTT_HOST
     val serverUri = "tcp://$MQTT_HOST:$MQTT_PORT"
     private val clientId: String = MqttClient.generateClientId()
@@ -69,6 +70,8 @@ class MqttClientHelper(context: Context?) {
                     subscribe("ledBulb")
                     subscribe("fan")
                     subscribe("ac")
+
+                    subscribe("HA/HOME_AUTO/status")
 
                 }
 
